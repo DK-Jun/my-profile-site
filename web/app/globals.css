@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* next-themes 의 `class` 전략과 연결: <html class="dark"> 기준으로 dark variant 활성화 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f7f8fb;
+  --foreground: #0f1628;
+  --muted: #eef1f6;
+  --muted-foreground: #51607a;
+  --border: #e1e5ee;
+  --primary: #ff6b5b;
+  --primary-hover: #ff8373;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgba(255, 107, 91, 0.14);
+  --card: #ffffff;
+  --card-foreground: #0f1628;
+  --surface-elevated: #ffffff;
+  --ring: rgba(255, 107, 91, 0.4);
+}
+
+.dark {
+  --background: #0b1220;
+  --foreground: #eef2f9;
+  --muted: #111a2e;
+  --muted-foreground: #8a97ad;
+  --border: #1c2744;
+  --primary: #ff6b5b;
+  --primary-hover: #ff8373;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgba(255, 107, 91, 0.16);
+  --card: #101a30;
+  --card-foreground: #eef2f9;
+  --surface-elevated: #13203a;
+  --ring: rgba(255, 107, 91, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface-elevated: var(--surface-elevated);
+  --font-sans: var(--font-sans-kr), var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 32%, transparent);
+  color: var(--foreground);
+}
+
+/* 히어로 배경 그리드 — 은은한 격자 패턴 */
+.bg-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--border) 45%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--border) 45%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 80%);
+}
+
+/* 히어로 비주얼용 래디얼 글로우 */
+.bg-radial-glow {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--primary) 55%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 20%, transparent) 35%,
+    transparent 70%
+  );
+}
+
+/* 프라이머리 버튼 글로우 섀도우 */
+.shadow-primary-glow {
+  box-shadow:
+    0 10px 30px -12px color-mix(in srgb, var(--primary) 55%, transparent),
+    0 4px 12px -6px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.shadow-primary-glow-lg {
+  box-shadow:
+    0 18px 48px -16px color-mix(in srgb, var(--primary) 60%, transparent),
+    0 6px 18px -8px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+/* 섹션 제목 강조용 중앙 정렬 포인트 */
+.section-accent::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin: 14px auto 0;
+  background: var(--primary);
+  border-radius: 999px;
+}
