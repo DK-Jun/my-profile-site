@@ -33,43 +33,40 @@ async function fetchUserProfile(userId: string): Promise<UserProfile> {
 ## 저장소 구조
 
 ```
-claude-code-mastery/
+my-profile-site/
 ├── CLAUDE.md                 # 이 문서
 ├── ROADMAP.md                # 7주 로드맵 (작업 기준점)
+├── README.md                 # 프로젝트 소개 (GitHub Pages 표시)
 ├── .claude/                  # Claude Code 로컬 설정
+├── .github/workflows/        # GitHub Actions (자동 빌드 & 배포)
 ├── static-preview/
 │   └── index.html            # 바닐라 HTML/CSS 정적 프리뷰 (Live Server 용)
-└── web/                      # Next.js 애플리케이션 루트 (npm 명령은 모두 여기서 실행)
-    ├── app/
-    ├── components/
-    ├── lib/
-    ├── public/
-    ├── package.json
-    └── ...
+├── app/                      # Next.js App Router 페이지
+├── components/               # UI 컴포넌트
+├── lib/                      # 데이터, 타입, 설정
+├── public/                   # 정적 파일
+└── package.json              # Node.js 설정
 ```
 
-**npm/빌드 명령은 모두 `web/` 안에서 실행합니다.** 루트에서 바로 `npm run dev` 를 치면 동작하지 않습니다.
+## 주요 디렉토리
 
-## `web/` 주요 디렉토리
+| 경로              | 역할                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `app/`            | App Router 페이지 (`/`, `/about`, `/projects`, `/skills`, `/contact`) + `sitemap.ts`, `robots.ts` |
+| `components/`     | `layout/`, `ui/`, `home/`, `about/`, `projects/`, `skills/`, `contact/`                   |
+| `lib/siteConfig.ts` | 사이트 메타 (제목/설명/OG)                                                                |
+| `lib/types.ts`    | 도메인 타입 (`Profile`, `Experience`, `Project`, `SkillCategory` …)                       |
+| `lib/data/*`      | **더미 콘텐츠의 단일 소스**. 실제 이력으로 교체할 때 이 디렉토리만 수정하면 됨            |
 
-| 경로                    | 역할                                                                                              |
-| ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `web/app/`              | App Router 페이지 (`/`, `/about`, `/projects`, `/skills`, `/contact`) + `sitemap.ts`, `robots.ts` |
-| `web/components/`       | `layout/`, `ui/`, `home/`, `about/`, `projects/`, `skills/`, `contact/`                           |
-| `web/lib/siteConfig.ts` | 사이트 메타 (제목/설명/OG)                                                                        |
-| `web/lib/types.ts`      | 도메인 타입 (`Profile`, `Experience`, `Project`, `SkillCategory` …)                               |
-| `web/lib/data/*`        | **더미 콘텐츠의 단일 소스**. 실제 이력으로 교체할 때 이 디렉토리만 수정하면 됨                    |
-
-UI 컴포넌트 안에 이력 문자열을 하드코딩하지 말고, `web/lib/data/*` 를 통해 주입받도록 유지하세요.
+UI 컴포넌트 안에 이력 문자열을 하드코딩하지 말고, `lib/data/*` 를 통해 주입받도록 유지하세요.
 
 ## 개발 명령어
 
-모두 `web/` 디렉토리에서 실행합니다.
+루트 디렉토리에서 실행합니다.
 
 ```bash
-cd web
 npm run dev           # 개발 서버 (http://localhost:3000)
-npm run build         # 프로덕션 빌드
+npm run build         # 정적 HTML 빌드 (GitHub Pages용)
 npm start             # 프로덕션 실행
 npm run lint          # ESLint
 npm run typecheck     # tsc --noEmit
@@ -85,13 +82,12 @@ npm run format:check  # Prettier 스타일 준수 여부 확인
 
 ## 아키텍처 메모
 
-아래 경로는 모두 `web/` 기준 상대 경로입니다.
-
 - **테마 연동**: Tailwind v4 는 `dark:` variant 에 `prefers-color-scheme` 를 기본값으로 쓰기 때문에, `app/globals.css` 에서 `@custom-variant dark (&:where(.dark, .dark *));` 로 **class 전략으로 재정의** 해두었습니다. next-themes 의 `attribute="class"` 와 짝을 이룹니다. 이 규칙을 제거하면 다크모드 토글이 UI 에 반영되지 않습니다.
-- **CSS 변수**: 색상은 `--background`, `--foreground`, `--primary` 등 CSS 변수로 선언되어 있고, Tailwind 클래스에서는 `bg-[var(--primary)]` 형태로 참조합니다. 새 색상 도입 시 `globals.css` 의 `:root` / `.dark` 양쪽에 값을 추가하고, `@theme inline` 블록에 매핑을 더해야 합니다.
+- **CSS 변수**: 색상은 `--background`, `--foreground`, `--primary` 등 CSS 변수로 선언되어 있고, Tailwind 클래스에서는 `bg-[var(--primary)]` 형태로 참조합니다. 새 색상 도입 시 `app/globals.css` 의 `:root` / `.dark` 양쪽에 값을 추가하고, `@theme inline` 블록에 매핑을 더해야 합니다.
 - **서버 vs 클라이언트 컴포넌트**: 상호작용이 필요한 `Header`, `ThemeToggle`, `ThemeProvider`, `ProjectFilter`, `ContactForm` 만 `"use client"` 로 선언되어 있습니다. 페이지(`app/*/page.tsx`)는 기본적으로 서버 컴포넌트로 유지하세요.
 - **lucide-react 버전 고정**: v1.x 에서 `Github`, `Linkedin`, `Twitter` 등 브랜드 아이콘이 제거되었습니다. 업그레이드 전에 아이콘 대체 방안을 먼저 확인하세요.
-- **SEO**: `app/layout.tsx` 의 `generateMetadata` 가 아닌 정적 `metadata` 객체와 JSON-LD `<script>` 를 사용합니다. 페이지별 추가 metadata 는 각 `page.tsx` 의 `export const metadata` 로 오버라이드합니다.
+- **SEO**: `app/layout.tsx` 의 정적 `metadata` 객체와 JSON-LD `<script>` 를 사용합니다. 페이지별 추가 metadata 는 각 `page.tsx` 의 `export const metadata` 로 오버라이드합니다.
+- **배포**: GitHub Actions가 `npm run build` 시 `out/` 디렉토리를 생성하고 GitHub Pages에 배포합니다. `next.config.ts`의 `output: 'export'` 설정이 필수입니다.
 
 ## 로드맵 기반 작업 원칙
 
@@ -115,5 +111,5 @@ npm run format:check  # Prettier 스타일 준수 여부 확인
 
 ## 파일 생성 정책
 
-- 사용자가 명시적으로 요청하지 않는 한 새로운 최상위 문서(`*.md`)를 생성하지 않습니다. 기존 문서(`ROADMAP.md`, `CLAUDE.md`, 루트 외 `web/README.md`, `web/AGENTS.md`) 업데이트를 우선합니다.
-- 이력 관련 문자열은 UI 에 하드코딩하지 않고 `web/lib/data/*` 에 추가합니다.
+- 사용자가 명시적으로 요청하지 않는 한 새로운 최상위 문서(`*.md`)를 생성하지 않습니다. 기존 문서(`ROADMAP.md`, `CLAUDE.md`, `README.md`, `AGENTS.md`) 업데이트를 우선합니다.
+- 이력 관련 문자열은 UI 에 하드코딩하지 않고 `lib/data/*` 에 추가합니다.
